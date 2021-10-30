@@ -33,7 +33,8 @@ def get_section(APIKey: str, signature: str, timeStamp: str, nextURI: str) -> ob
 
 def clear_screen() -> None:
     clear = lambda: os.system("clear")
-    clear() 
+    clear()
+
 
 def output_data(cryptoItems: list[CryptoItem]) -> None:
     totalValue = 0
