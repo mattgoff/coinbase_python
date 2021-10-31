@@ -65,18 +65,19 @@ def get_crypto_data() -> list:
     return jsonResults
 
 
-def add_to_crypto_list(data: dict, crypto: CryptoItemList):
+def add_to_crypto_list(data: dict, CryptoItemList: CryptoItemList):
     for item in data:
         name = item["name"]
         amount = float(item["balance"]["amount"])
         currency = item["balance"]["currency"]
-        crypto.addCrypto(name, currency, amount)
+        CryptoItemList.addCrypto(name, currency, amount)
+        # crypto.addCrypto(name, currency, amount)
 
 
 if __name__ == "__main__":
 
-    crypto = CryptoItemList()
+    # crypto = CryptoItemList()
     CryptoItemList.get_exchange_rates()
     JSonResults = get_crypto_data()
-    add_to_crypto_list(JSonResults, crypto)
+    add_to_crypto_list(JSonResults, CryptoItemList)
     output_data(CryptoItemList.cyrpto_list)
