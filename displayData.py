@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from colorama.ansi import Fore
 from CryptoClass import CryptoItem, CryptoItemList
@@ -26,7 +27,10 @@ def output_data(cryptoItems: list[CryptoItem]) -> None:
     print(f"Total Value: {round(totalValue, 2):.2f}")
 
 def output_data_colored(dbconn: str) -> None:
-    # clear_screen()
+    clear_screen()
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Time: ->  {}".format(current_time))
     init(autoreset=True)
     sql_string = "SELECT * FROM crypto ORDER by id DESC LIMIT 2"
     results = execute_read_query(dbconn, sql_string)
