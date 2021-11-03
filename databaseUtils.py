@@ -13,12 +13,24 @@ def create_connection(db_file):
     return conn
 
 
-def check_db_tables_for_currency(current_columns: list, cryptoItems: list[CryptoItem], dbconn: str):
+def check_db(current_columns: list, cryptoItems: list[CryptoItem], dbconn: str):
+    sql_string = """ CREATE TABLE IF NOT EXISTS crypto(
+	                    "id" INTEGER NOT NULL,
+	                    "datetime" TEXT,
+	                    PRIMARY KEY("id" AUTOINCREMENT)
+                ) """
+
+    execute_write(dbconn, sql_string)
+
     crypto_list = [x[1].upper() for x in current_columns]
     for item in cryptoItems.crypto_list:
         if item.unitcount > 0 and item.symbol not in crypto_list:
             print("Adding column {}".format(item.symbol.lower()))
             result = execute_read_query(dbconn, "ALTER TABLE crypto ADD COLUMN " + item.symbol.lower() + " INTEGER")
+
+    if "TOTAL" not in crypto_list:
+        print("Adding column total")
+        execute_read_query(dbconn, "ALTER TABLE crypto ADD COLUMN total INTEGER")
 
 
 def execute_read_query(connection, query):

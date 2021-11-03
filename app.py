@@ -2,13 +2,12 @@ import requests
 import hmac
 import hashlib
 import time
-import os
 from datetime import datetime
 
-from databaseUtils import create_connection, check_db_tables_for_currency, execute_read_query, execute_write
+from databaseUtils import create_connection, check_db, execute_read_query, execute_write
 from secrets import APIKey, APISecret
-from CryptoClass import CryptoItem, CryptoItemList
-from displayData import output_data
+from CryptoClass import CryptoItemList
+from displayData import output_data_colored
 
 CBABaseURL = "https://api.coinbase.com/"
 
@@ -60,14 +59,16 @@ def add_to_crypto_db(CryptoItemList: CryptoItemList, dbconn: str):
     dt = datetime.now().isoformat()
     col_values = "datetime,"
     val_values = '"{}",'.format(dt)
+    val_total = 0
 
     for item in CryptoItemList.crypto_list:
         if item.unitcount > 0:
             col_values += "{},".format(item.symbol.lower())
             val_values += "{},".format(item.value())
+            val_total += item.value()
 
-    col_values = col_values.rstrip(",")
-    val_values = val_values.rstrip(",")
+    col_values += "total"
+    val_values += "{}".format(val_total)
 
     sql_string = "INSERT into crypto({}) values({})".format(col_values, val_values)
     execute_write(dbconn, sql_string)
@@ -86,13 +87,15 @@ def main():
     #connect to db and check that we have columns for each crypto that we own
     dbconn = create_connection("./coinbase.sqlite")
     current_columns = execute_read_query(dbconn, "PRAGMA table_info(crypto)")
-    check_db_tables_for_currency(current_columns, CryptoItemList, dbconn)
+    check_db(current_columns, CryptoItemList, dbconn)
     
     #write crypto to db
     add_to_crypto_db(CryptoItemList, dbconn)
     
     #output last pull to the screen with delta
-    output_data(CryptoItemList.crypto_list)
+    # output_data(CryptoItemList.crypto_list)
+    output_data_colored(dbconn)
+
     dbconn.close()
 
 if __name__ == "__main__":
