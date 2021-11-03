@@ -82,24 +82,24 @@ def main():
     JSonResults = get_crypto_data()
 
     #write crypto to object
-    CryptoItemList.crypto_list = []
     add_to_crypto_list(JSonResults, CryptoItemList)
     
+    #connect to db and check that we have columns for each crypto that we own
+    dbconn = create_connection("./coinbase.sqlite")
+    current_columns = execute_read_query(dbconn, "PRAGMA table_info(crypto)")
+    check_db(current_columns, CryptoItemList, dbconn)
+
     #write crypto to db
     add_to_crypto_db(CryptoItemList, dbconn)
     
     #output last pull to the screen with delta
     output_data_colored(dbconn)
 
+    dbconn.close()
+    CryptoItemList.crypto_list = []
 
 if __name__ == "__main__":
-    #connect to db and check that we have columns for each crypto that we own
-    dbconn = create_connection("./coinbase.sqlite")
-    current_columns = execute_read_query(dbconn, "PRAGMA table_info(crypto)")
-    check_db(current_columns, CryptoItemList, dbconn)
-
     while True:
         main()
         time.sleep(300)
 
-    dbconn.close()
