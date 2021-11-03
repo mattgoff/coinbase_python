@@ -3,11 +3,11 @@ import requests
 
 class CryptoItemList:
     exchange_rates = {}
-    cyrpto_list = []
+    crypto_list = []
 
     @staticmethod    
     def addCrypto(name, symbol, unitcount):
-        CryptoItemList.cyrpto_list.append(CryptoItem(name, symbol, unitcount))
+        CryptoItemList.crypto_list.append(CryptoItem(name, symbol, unitcount))
 
     @classmethod
     def get_exchange_rates(cls) -> list:

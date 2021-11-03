@@ -3,8 +3,12 @@ import hmac
 import hashlib
 import time
 import os
+from datetime import datetime
+
+from databaseUtils import create_connection, check_db_tables_for_currency, execute_read_query, execute_write
 from secrets import APIKey, APISecret
 from CryptoClass import CryptoItem, CryptoItemList
+from displayData import output_data
 
 CBABaseURL = "https://api.coinbase.com/"
 
@@ -31,27 +35,6 @@ def get_section(APIKey: str, signature: str, timeStamp: str, nextURI: str) -> ob
     return (response.json()["data"], nextURI)
 
 
-def clear_screen() -> None:
-    clear = lambda: os.system("clear")
-    clear()
-
-
-def output_data(cryptoItems: list[CryptoItem]) -> None:
-    totalValue = 0
-
-    clear_screen()
-    print(f"Name\t\tSymbol\tUnits\t\tValue")
-    for item in cryptoItems:
-        if item.unitcount > 0:
-            totalValue += item.value()
-            print(
-                f"{item.name}\t{item.symbol}\t{item.unitcount}\t{round(item.value(), 2):.2f}"
-            )
-
-    print("-" * 36)
-    print(f"Total Value: {round(totalValue, 2):.2f}")
-
-
 def get_crypto_data() -> list:
     jsonResults = []
     NextURI = "/v2/accounts"
@@ -71,13 +54,47 @@ def add_to_crypto_list(data: dict, CryptoItemList: CryptoItemList):
         amount = float(item["balance"]["amount"])
         currency = item["balance"]["currency"]
         CryptoItemList.addCrypto(name, currency, amount)
-        # crypto.addCrypto(name, currency, amount)
 
+
+def add_to_crypto_db(CryptoItemList: CryptoItemList, dbconn: str):
+    dt = datetime.now().isoformat()
+    col_values = "datetime,"
+    val_values = '"{}",'.format(dt)
+
+    for item in CryptoItemList.crypto_list:
+        if item.unitcount > 0:
+            col_values += "{},".format(item.symbol.lower())
+            val_values += "{},".format(item.value())
+
+    col_values = col_values.rstrip(",")
+    val_values = val_values.rstrip(",")
+
+    sql_string = "INSERT into crypto({}) values({})".format(col_values, val_values)
+    execute_write(dbconn, sql_string)
+
+
+def main():  
+    #get and populate exchange rates for all cryptos
+    CryptoItemList.get_exchange_rates()
+
+    #get crypto values in our portfolio
+    JSonResults = get_crypto_data()
+
+    #write crypto to object
+    add_to_crypto_list(JSonResults, CryptoItemList)
+
+    #connect to db and check that we have columns for each crypto that we own
+    dbconn = create_connection("./coinbase.sqlite")
+    current_columns = execute_read_query(dbconn, "PRAGMA table_info(crypto)")
+    check_db_tables_for_currency(current_columns, CryptoItemList, dbconn)
+    
+    #write crypto to db
+    add_to_crypto_db(CryptoItemList, dbconn)
+    
+    #output last pull to the screen with delta
+    output_data(CryptoItemList.crypto_list)
+    dbconn.close()
 
 if __name__ == "__main__":
+    main()
 
-    # crypto = CryptoItemList()
-    CryptoItemList.get_exchange_rates()
-    JSonResults = get_crypto_data()
-    add_to_crypto_list(JSonResults, CryptoItemList)
-    output_data(CryptoItemList.cyrpto_list)
