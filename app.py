@@ -13,7 +13,7 @@ CBABaseURL = "https://api.coinbase.com/"
 
 
 def generate_signature(
-    timestamp: str, method: str, requestPath: str, body: str, appSecret: str
+        timestamp: str, method: str, requestPath: str, body: str, appSecret: str
 ) -> str:
     message = f"{timestamp}{method}{requestPath}{body}"
     signature = hmac.new(
@@ -47,7 +47,7 @@ def get_crypto_data() -> list:
     return jsonResults
 
 
-def add_to_crypto_list(data: dict, CryptoItemList: CryptoItemList):
+def add_to_crypto_list(data: list, CryptoItemList: [CryptoItemList]):
     for item in data:
         name = item["name"]
         amount = float(item["balance"]["amount"])
@@ -55,7 +55,7 @@ def add_to_crypto_list(data: dict, CryptoItemList: CryptoItemList):
         CryptoItemList.addCrypto(name, currency, amount)
 
 
-def add_to_crypto_db(CryptoItemList: CryptoItemList, dbconn: str):
+def add_to_crypto_db(CryptoItemList: [CryptoItemList], dbconn: str):
     dt = datetime.now().isoformat()
     col_values = "datetime,"
     val_values = '"{}",'.format(dt)
@@ -74,32 +74,32 @@ def add_to_crypto_db(CryptoItemList: CryptoItemList, dbconn: str):
     execute_write(dbconn, sql_string)
 
 
-def main():  
-    #get and populate exchange rates for all cryptos
+def main():
+    # get and populate exchange rates for all cryptos
     CryptoItemList.get_exchange_rates()
 
-    #get crypto values in our portfolio
+    # get crypto values in our portfolio
     JSonResults = get_crypto_data()
 
-    #write crypto to object
+    # write crypto to object
     add_to_crypto_list(JSonResults, CryptoItemList)
-    
-    #connect to db and check that we have columns for each crypto that we own
+
+    # connect to db and check that we have columns for each crypto that we own
     dbconn = create_connection("./coinbase.sqlite")
     current_columns = execute_read_query(dbconn, "PRAGMA table_info(crypto)")
     check_db(current_columns, CryptoItemList, dbconn)
 
-    #write crypto to db
+    # write crypto to db
     add_to_crypto_db(CryptoItemList, dbconn)
-    
-    #output last pull to the screen with delta
+
+    # output last pull to the screen with delta
     output_data_colored(dbconn)
 
     dbconn.close()
     CryptoItemList.crypto_list = []
 
+
 if __name__ == "__main__":
     while True:
         main()
-        time.sleep(300)
-
+        time.sleep(600)

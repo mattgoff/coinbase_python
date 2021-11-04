@@ -13,12 +13,9 @@ def create_connection(db_file):
     return conn
 
 
-def check_db(current_columns: list, cryptoItems: list[CryptoItem], dbconn: str):
-    sql_string = """ CREATE TABLE IF NOT EXISTS crypto(
-	                    "id" INTEGER NOT NULL,
-	                    "datetime" TEXT,
-	                    PRIMARY KEY("id" AUTOINCREMENT)
-                ) """
+def check_db(current_columns: list, cryptoItems: [CryptoItem], dbconn: str):
+    sql_string = """CREATE TABLE IF NOT EXISTS crypto("id" INTEGER NOT NULL,"datetime" TEXT,PRIMARY KEY("id" 
+    AUTOINCREMENT)) """
 
     execute_write(dbconn, sql_string)
 
@@ -42,6 +39,7 @@ def execute_read_query(connection, query):
         return result
     except Error as e:
         print(f"The error '{e}' occurred")
+
 
 def execute_write(connection, query):
     cursor = connection.cursor()
