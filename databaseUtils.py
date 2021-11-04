@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 from CryptoClass import CryptoItem
 
+
 def create_connection(db_file):
     conn = None
     try:
@@ -13,26 +14,25 @@ def create_connection(db_file):
     return conn
 
 
-def check_db(current_columns: list, cryptoItems: [CryptoItem], dbconn: str):
+def check_db(current_columns: list, cryptoItems: [CryptoItem], db_conn: sqlite3.Connection):
     sql_string = """CREATE TABLE IF NOT EXISTS crypto("id" INTEGER NOT NULL,"datetime" TEXT,PRIMARY KEY("id" 
     AUTOINCREMENT)) """
 
-    execute_write(dbconn, sql_string)
+    execute_write(db_conn, sql_string)
 
     crypto_list = [x[1].upper() for x in current_columns]
     for item in cryptoItems.crypto_list:
         if item.unitcount > 0 and item.symbol not in crypto_list:
             print("Adding column {}".format(item.symbol.lower()))
-            result = execute_read_query(dbconn, "ALTER TABLE crypto ADD COLUMN " + item.symbol.lower() + " INTEGER")
+            execute_read_query(db_conn, "ALTER TABLE crypto ADD COLUMN " + item.symbol.lower() + " INTEGER")
 
     if "TOTAL" not in crypto_list:
         print("Adding column total")
-        execute_read_query(dbconn, "ALTER TABLE crypto ADD COLUMN total INTEGER")
+        execute_read_query(db_conn, "ALTER TABLE crypto ADD COLUMN total INTEGER")
 
 
-def execute_read_query(connection, query):
+def execute_read_query(connection: sqlite3.Connection, query: str):
     cursor = connection.cursor()
-    result = None
     try:
         cursor.execute(query)
         result = cursor.fetchall()
@@ -41,7 +41,7 @@ def execute_read_query(connection, query):
         print(f"The error '{e}' occurred")
 
 
-def execute_write(connection, query):
+def execute_write(connection: sqlite3.Connection, query: str):
     cursor = connection.cursor()
     try:
         cursor.execute(query)

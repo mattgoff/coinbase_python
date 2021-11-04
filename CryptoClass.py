@@ -10,7 +10,7 @@ class CryptoItemList:
         CryptoItemList.crypto_list.append(CryptoItem(name, symbol, unitcount))
 
     @classmethod
-    def get_exchange_rates(cls) -> list:
+    def get_exchange_rates(cls) -> None:
         response = requests.get("https://api.coinbase.com/v2/exchange-rates")
         cls.exchange_rates = response.json()["data"]["rates"]
 

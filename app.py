@@ -1,3 +1,5 @@
+import sqlite3
+
 import requests
 import hmac
 import hashlib
@@ -13,7 +15,7 @@ CBABaseURL = "https://api.coinbase.com/"
 
 
 def generate_signature(
-        timestamp: str, method: str, requestPath: str, body: str, appSecret: str
+        timestamp: int, method: str, requestPath: str, body: str, appSecret: str
 ) -> str:
     message = f"{timestamp}{method}{requestPath}{body}"
     signature = hmac.new(
@@ -22,46 +24,46 @@ def generate_signature(
     return signature
 
 
-def get_section(APIKey: str, signature: str, timeStamp: str, nextURI: str) -> object:
+def get_section(api_key: str, signature: str, timeStamp: int, next_uri: str) -> object:
     headers = {
         "Content-Type": "application/json",
-        "CB-ACCESS-KEY": APIKey,
+        "CB-ACCESS-KEY": api_key,
         "CB-ACCESS-SIGN": signature,
         "CB-ACCESS-TIMESTAMP": f"{timeStamp}",
     }
-    response = requests.get(CBABaseURL + nextURI, headers=headers)
-    nextURI = response.json()["pagination"]["next_uri"]
-    return (response.json()["data"], nextURI)
+    response = requests.get(CBABaseURL + next_uri, headers=headers)
+    next_uri = response.json()["pagination"]["next_uri"]
+    return response.json()["data"], next_uri
 
 
 def get_crypto_data() -> list:
-    jsonResults = []
-    NextURI = "/v2/accounts"
+    json_results = []
+    next_uri = "/v2/accounts"
 
-    while NextURI != None:
-        timeStamp = int(time.time())
-        signature = generate_signature(timeStamp, "GET", NextURI, "", APISecret)
-        data, NextURI = get_section(APIKey, signature, timeStamp, NextURI)
-        jsonResults += data
+    while next_uri:
+        time_stamp = int(time.time())
+        signature = generate_signature(time_stamp, "GET", next_uri, "", APISecret)
+        data, next_uri = get_section(APIKey, signature, time_stamp, next_uri)
+        json_results += data
 
-    return jsonResults
+    return json_results
 
 
-def add_to_crypto_list(data: list, CryptoItemList: [CryptoItemList]):
+def add_to_crypto_list(data: list, crypto_item_list: [CryptoItemList]):
     for item in data:
         name = item["name"]
         amount = float(item["balance"]["amount"])
         currency = item["balance"]["currency"]
-        CryptoItemList.addCrypto(name, currency, amount)
+        crypto_item_list.addCrypto(name, currency, amount)
 
 
-def add_to_crypto_db(CryptoItemList: [CryptoItemList], dbconn: str):
+def add_to_crypto_db(crypto_item_list: [CryptoItemList], db_conn: sqlite3.Connection):
     dt = datetime.now().isoformat()
     col_values = "datetime,"
     val_values = '"{}",'.format(dt)
     val_total = 0
 
-    for item in CryptoItemList.crypto_list:
+    for item in crypto_item_list.crypto_list:
         if item.unitcount > 0:
             col_values += "{},".format(item.symbol.lower())
             val_values += "{},".format(item.value())
@@ -71,7 +73,7 @@ def add_to_crypto_db(CryptoItemList: [CryptoItemList], dbconn: str):
     val_values += "{}".format(val_total)
 
     sql_string = "INSERT into crypto({}) values({})".format(col_values, val_values)
-    execute_write(dbconn, sql_string)
+    execute_write(db_conn, sql_string)
 
 
 def main():
@@ -79,23 +81,23 @@ def main():
     CryptoItemList.get_exchange_rates()
 
     # get crypto values in our portfolio
-    JSonResults = get_crypto_data()
+    json_results = get_crypto_data()
 
     # write crypto to object
-    add_to_crypto_list(JSonResults, CryptoItemList)
+    add_to_crypto_list(json_results, CryptoItemList)
 
     # connect to db and check that we have columns for each crypto that we own
-    dbconn = create_connection("./coinbase.sqlite")
-    current_columns = execute_read_query(dbconn, "PRAGMA table_info(crypto)")
-    check_db(current_columns, CryptoItemList, dbconn)
+    db_conn = create_connection("./coinbase.sqlite")
+    current_columns = execute_read_query(db_conn, "PRAGMA table_info(crypto)")
+    check_db(current_columns, CryptoItemList, db_conn)
 
     # write crypto to db
-    add_to_crypto_db(CryptoItemList, dbconn)
+    add_to_crypto_db(CryptoItemList, db_conn)
 
     # output last pull to the screen with delta
-    output_data_colored(dbconn)
+    output_data_colored(db_conn)
 
-    dbconn.close()
+    db_conn.close()
     CryptoItemList.crypto_list = []
 
 
