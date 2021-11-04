@@ -54,7 +54,7 @@ def add_to_crypto_list(data: list, crypto_item_list: [CryptoItemList]):
         name = item["name"]
         amount = float(item["balance"]["amount"])
         currency = item["balance"]["currency"]
-        crypto_item_list.addCrypto(name, currency, amount)
+        crypto_item_list.add_crypto(name, currency, amount)
 
 
 def add_to_crypto_db(crypto_item_list: [CryptoItemList], db_conn: sqlite3.Connection):
@@ -64,7 +64,7 @@ def add_to_crypto_db(crypto_item_list: [CryptoItemList], db_conn: sqlite3.Connec
     val_total = 0
 
     for item in crypto_item_list.crypto_list:
-        if item.unitcount > 0:
+        if item.unit_count > 0:
             col_values += "{},".format(item.symbol.lower())
             val_values += "{},".format(item.value())
             val_total += item.value()

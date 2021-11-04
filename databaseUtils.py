@@ -22,7 +22,7 @@ def check_db(current_columns: list, cryptoItems: [CryptoItem], db_conn: sqlite3.
 
     crypto_list = [x[1].upper() for x in current_columns]
     for item in cryptoItems.crypto_list:
-        if item.unitcount > 0 and item.symbol not in crypto_list:
+        if item.unit_count > 0 and item.symbol not in crypto_list:
             print("Adding column {}".format(item.symbol.lower()))
             execute_read_query(db_conn, "ALTER TABLE crypto ADD COLUMN " + item.symbol.lower() + " INTEGER")
 

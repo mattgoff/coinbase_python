@@ -6,8 +6,8 @@ class CryptoItemList:
     crypto_list = []
 
     @staticmethod    
-    def addCrypto(name, symbol, unitcount):
-        CryptoItemList.crypto_list.append(CryptoItem(name, symbol, unitcount))
+    def add_crypto(name, symbol, unit_count):
+        CryptoItemList.crypto_list.append(CryptoItem(name, symbol, unit_count))
 
     @classmethod
     def get_exchange_rates(cls) -> None:
@@ -16,10 +16,10 @@ class CryptoItemList:
 
 
 class CryptoItem:
-    def __init__(self, name, symbol, unitcount):
+    def __init__(self, name, symbol, unit_count):
         self.name = name
         self.symbol = symbol.upper()
-        self.unitcount = unitcount
+        self.unit_count = unit_count
 
     def value(self):
-        return self.unitcount / float(CryptoItemList.exchange_rates[self.symbol])
+        return self.unit_count / float(CryptoItemList.exchange_rates[self.symbol])
