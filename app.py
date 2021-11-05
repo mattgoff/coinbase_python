@@ -5,6 +5,7 @@ import hmac
 import hashlib
 import time
 from datetime import datetime
+from colorama import init
 
 from databaseUtils import create_connection, check_db, execute_read_query, execute_write
 from secrets import APIKey, APISecret
@@ -102,6 +103,8 @@ def main():
 
 
 if __name__ == "__main__":
+    init(autoreset=True)
+
     while True:
         main()
         time.sleep(600)

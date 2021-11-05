@@ -2,7 +2,7 @@ import os
 import sqlite3
 from datetime import datetime
 from CryptoClass import CryptoItem, CryptoItemList
-from colorama import init, Fore
+from colorama import Fore
 from databaseUtils import execute_read_query
 
 
@@ -32,7 +32,7 @@ def output_data_colored(db_conn: sqlite3.Connection) -> None:
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("Time: ->  {}".format(current_time))
-    init(autoreset=True)
+
     sql_string = "SELECT * FROM crypto ORDER by id DESC LIMIT 2"
     results = execute_read_query(db_conn, sql_string)
     if len(results) == 2:
