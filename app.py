@@ -107,4 +107,6 @@ if __name__ == "__main__":
 
     while True:
         main()
-        time.sleep(600)
+        for i in range(60):
+            print(".", end='')
+            time.sleep(5)
