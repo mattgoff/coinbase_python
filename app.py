@@ -10,7 +10,7 @@ from colorama import init
 from databaseUtils import create_connection, check_db, execute_read_query, execute_write
 from secrets import APIKey, APISecret
 from CryptoClass import CryptoItemList
-from displayData import output_data_colored
+from displayData import output_data_colored, output_data_symbol
 
 CBABaseURL = "https://api.coinbase.com/"
 
@@ -96,7 +96,8 @@ def main():
     add_to_crypto_db(CryptoItemList, db_conn)
 
     # output last pull to the screen with delta
-    output_data_colored(db_conn)
+    # output_data_colored(db_conn)
+    output_data_symbol(db_conn)
 
     db_conn.close()
     CryptoItemList.crypto_list = []

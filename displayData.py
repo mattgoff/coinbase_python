@@ -52,3 +52,30 @@ def output_data_colored(db_conn: sqlite3.Connection) -> None:
                     print(Fore.BLUE + "{}\t{}\t{}".format(full_name, symbol, round(c_cur, 2)))
     else:
         print(Fore.YELLOW + "Try running it again")
+
+
+def output_data_symbol(db_conn: sqlite3.Connection) -> None:
+    clear_screen()
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Time: ->  {}".format(current_time))
+
+    sql_string = "SELECT * FROM crypto ORDER by id DESC LIMIT 2"
+    results = execute_read_query(db_conn, sql_string)
+    if len(results) == 2:
+        col_names = execute_read_query(db_conn, "PRAGMA table_info(crypto)")
+        col_names = [x[1] for x in col_names]
+        for symbol, c_cur, c_prev in zip(col_names, results[0], results[1]):
+            if symbol != "id" and symbol != "datetime":
+                full_name = ""
+                for item in CryptoItemList.crypto_list:
+                    if item.symbol.lower() == symbol.lower():
+                        full_name = item.name
+                if c_cur > c_prev:
+                    print("{}\t{}\t{}\t↑".format(full_name, symbol, round(c_cur, 2)))
+                elif c_cur < c_prev:
+                    print("{}\t{}\t{}\t↓".format(full_name, symbol, round(c_cur, 2)))
+                else:
+                    print("{}\t{}\t{}\t→".format(full_name, symbol, round(c_cur, 2)))
+    else:
+        print("←← Try running it again →→")
