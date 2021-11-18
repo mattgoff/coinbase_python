@@ -77,6 +77,11 @@ def add_to_crypto_db(crypto_item_list: [CryptoItemList], db_conn: sqlite3.Connec
     execute_write(db_conn, sql_string)
 
 
+def get_rest_data():
+    data = requests.get("http://172.16.12.11:5000/api/v1/aqi")
+    return data.json()
+
+
 def main():
     # get and populate exchange rates for all cryptos
     CryptoItemList.get_exchange_rates()
@@ -88,6 +93,7 @@ def main():
     add_to_crypto_list(json_results, CryptoItemList)
 
     # connect to db and check that we have columns for each crypto that we own
+    # db_conn = create_connection("./coinbase.sqlite")
     db_conn = create_connection("/home/pi/coinbase_python/coinbase.sqlite")
     current_columns = execute_read_query(db_conn, "PRAGMA table_info(crypto)")
     check_db(current_columns, CryptoItemList, db_conn)
@@ -95,8 +101,11 @@ def main():
     # write crypto to db
     add_to_crypto_db(CryptoItemList, db_conn)
 
+    # get json office data
+    office_json = get_rest_data()
+
     # output last pull to the screen with delta
-    output_data_colored(db_conn)
+    output_data_colored(db_conn, office_json)
     # output_data_symbol(db_conn)
 
     db_conn.close()

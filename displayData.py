@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import json
 from datetime import datetime
 from CryptoClass import CryptoItem, CryptoItemList
 from colorama import Fore
@@ -27,7 +28,7 @@ def output_data(cryptoItems: list[CryptoItem]) -> None:
     print(f"Total Value: {round(total_value, 2):.2f}")
 
 
-def output_data_colored(db_conn: sqlite3.Connection) -> None:
+def output_data_colored(db_conn: sqlite3.Connection, office_json: object) -> None:
     clear_screen()
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
@@ -52,6 +53,8 @@ def output_data_colored(db_conn: sqlite3.Connection) -> None:
                     print(Fore.BLUE + "{}\t{}\t{}\t".format(full_name, symbol, round(c_cur, 2)) + Fore.BLUE + "  →")
     else:
         print(Fore.YELLOW + "Try running it again")
+
+    print(json.dumps(office_json, indent=4, sort_keys=True))
 
 
 def output_data_symbol(db_conn: sqlite3.Connection) -> None:
