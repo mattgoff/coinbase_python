@@ -88,7 +88,7 @@ def main():
     add_to_crypto_list(json_results, CryptoItemList)
 
     # connect to db and check that we have columns for each crypto that we own
-    db_conn = create_connection("./coinbase.sqlite")
+    db_conn = create_connection("/home/pi/coinbase_python/coinbase.sqlite")
     current_columns = execute_read_query(db_conn, "PRAGMA table_info(crypto)")
     check_db(current_columns, CryptoItemList, db_conn)
 

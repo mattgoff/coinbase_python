@@ -45,11 +45,11 @@ def output_data_colored(db_conn: sqlite3.Connection) -> None:
                     if item.symbol.lower() == symbol.lower():
                         full_name = item.name
                 if c_cur > c_prev:
-                    print("{}\t{}\t{}".format(full_name, symbol, round(c_cur, 2)) + Fore.GREEN + "  ↑")
+                    print(Fore.GREEN + "{}\t{}\t{}\t".format(full_name, symbol, round(c_cur, 2)) + Fore.GREEN + "  ↑")
                 elif c_prev < c_prev:
-                    print("{}\t{}\t{}".format(full_name, symbol, round(c_cur, 2)) + Fore.RED + "  ↓")
+                    print(Fore.RED + "{}\t{}\t{}\t".format(full_name, symbol, round(c_cur, 2)) + Fore.RED + "  ↓")
                 else:
-                    print("{}\t{}\t{}".format(full_name, symbol, round(c_cur, 2)) + Fore.BLUE + "  →")
+                    print(Fore.BLUE + "{}\t{}\t{}\t".format(full_name, symbol, round(c_cur, 2)) + Fore.BLUE + "  →")
     else:
         print(Fore.YELLOW + "Try running it again")
 
