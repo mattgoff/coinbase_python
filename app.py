@@ -96,8 +96,8 @@ def main():
     add_to_crypto_db(CryptoItemList, db_conn)
 
     # output last pull to the screen with delta
-    # output_data_colored(db_conn)
-    output_data_symbol(db_conn)
+    output_data_colored(db_conn)
+    # output_data_symbol(db_conn)
 
     db_conn.close()
     CryptoItemList.crypto_list = []
